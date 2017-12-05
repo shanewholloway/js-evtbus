@@ -1,0 +1,55 @@
+//import {Component, PureComponent} from 'react'
+//return withSubscribe @ evtbus, @{} Component, PureComponent
+
+export function withSubscribe(evtbus, componentClasses) ::
+  const res = {}
+  for const [name, base] of Object.entries @ componentClasses ::
+    res[name] = class extends base ::
+
+      subscribe(props) ::
+
+      componentWillMount() ::
+        super.componentWillMount()
+        bindSubscriptions @ this
+        this.evt_sink.emit('will_mount')
+
+      componentDidMount() ::
+        this.evt_sink.emit('did_mount')
+
+      componentWillUnmount() ::
+        this.evt_sink.emit('will_unmount').clear()
+
+      get evt_sink() :: return evtbus.sink(this)
+
+    res[name].prototype.evtbus = evtbus
+
+  return res
+
+
+export function bindSubscriptions(component, callback) ::
+  if null == component.state ::
+    component.state = {}
+
+  const unwind = []
+  component.evt_sink
+    .on @ 'will_mount', mount
+    .on @ 'will_unmount', unmount
+
+  function unmount() ::
+    for const unsub of unwind.splice @ 0, unwind.length ::
+      unsub()
+
+  function mount() ::
+    const sub_state = callback
+      ? callback.call(component, component.props, component)
+      : component.subscribe(component.props)
+
+    component.setState @ sub_state, function() ::
+      for const [attr, sub] of Object.entries @ sub_state ::
+        if null == sub || 'function' !== typeof sub.subscribe ::
+          throw new TypeError @ `Subscription "${attr}" does not have a subscribe() function`
+
+        unwind.push @ sub.subscribe @ false, v => ::
+          component.setState @ prev =>
+            v !== prev[attr] ? {[attr]: v} : null
+

@@ -1,6 +1,6 @@
 {
   "name": "evtbus",
-  "version": "0.1.0",
+  "version": "0.2.0-alpha",
   "description": "Combination of an in-process 'event bus' and a streamlined event emitter",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
@@ -21,9 +21,9 @@
     "code/",
     "test/"
   ],
-  "main": "dist/evtbus.js",
-  "module": "dist/evtbus.mjs",
-  "browser": "dist/evtbus.umd.js",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "browser": "dist/index.amd.js",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-jsy": "^0.9.3",
@@ -36,9 +36,10 @@
     "presets": "jsy/lean"
   },
   "scripts": {
+    "clean": "rm -rf ./dist/*",
     "build": "rollup --config",
     "watch": "npm -s run build -- --watch",
     "pretest": "npm -s run build",
-    "test": "node test/test.js"
+    "test": "babel-node test/test.jsy"
   }
 }

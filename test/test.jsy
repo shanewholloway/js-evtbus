@@ -1,0 +1,57 @@
+require('source-map-support').install()
+const assert = require('assert')
+
+//const eb = require('evtbus')
+const eb = require('../dist/evtbus')
+
+::
+  const g = {}, src = {y:1942}
+
+  let l_ans, g_ans
+  eb.sink(g)
+    .subscribe @ 'neato', 'keen', (v, topic) => ::
+      l_ans = @{} v, topic
+
+    .subscribe @ 'neato', '*', (v, name, topic) => ::
+      g_ans = @{} v, name, topic
+
+  eb.topic('neato').emit @ 'keen', src
+
+  const check_answers = () => ::
+    assert.strictEqual @ l_ans.v, src
+    assert.strictEqual @ l_ans.topic, 'neato'
+    assert.strictEqual @ g_ans.v, src
+    assert.strictEqual @ g_ans.name, 'keen'
+    assert.strictEqual @ g_ans.topic, 'neato'
+
+
+  check_answers()
+  eb.sink(g).clear()
+  check_answers()
+  eb.topic('neato').emit @ 'keen', {n: -42}
+  check_answers()
+  eb.topic('neato').emit @ 'not-keen', {n: false}
+  check_answers()
+
+::
+  const h = {}, src = Symbol()
+
+  let l_ans, g_ans
+  eb.sink(h)
+    .on @ 'some_local_evt', (v, topic) => ::
+      l_ans = @{} v, topic
+
+    .on @ '*', (v, name, topic) => ::
+      g_ans = @{} v, name, topic
+
+    .emit @ 'some_local_evt', src
+    .clear()
+
+  const check_answers = () => ::
+    assert.strictEqual @ l_ans.v, src
+    assert.strictEqual @ l_ans.topic, h
+    assert.strictEqual @ g_ans.v, src
+    assert.strictEqual @ g_ans.name, 'some_local_evt'
+    assert.strictEqual @ g_ans.topic, h
+
+  check_answers()
