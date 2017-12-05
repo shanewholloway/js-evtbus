@@ -1,0 +1,44 @@
+{
+  "name": "evtbus",
+  "version": "0.1.0",
+  "description": "Combination of an in-process 'event bus' and a streamlined event emitter",
+  "license": "BSD-2-Clause",
+  "author": "Shane Holloway <shane.holloway@ieee.org>",
+  "homepage": "https://github.com/shanewholloway/js-evtbus#readme",
+  "bugs": {
+    "url": "https://github.com/shanewholloway/js-evtbus/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/shanewholloway/js-evtbus.git"
+  },
+  "keywords": [
+    "event-emitter",
+    "event bus"
+  ],
+  "files": [
+    "dist/",
+    "code/",
+    "test/"
+  ],
+  "main": "dist/evtbus.js",
+  "module": "dist/evtbus.mjs",
+  "browser": "dist/evtbus.umd.js",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-jsy": "^0.9.3",
+    "rollup": "^0.52.0",
+    "rollup-plugin-babel": "^3.0.2",
+    "rollup-plugin-uglify": "^2.0.1",
+    "uglify-es": "^3.2.0"
+  },
+  "babel": {
+    "presets": "jsy/lean"
+  },
+  "scripts": {
+    "build": "rollup --config",
+    "watch": "npm -s run build -- --watch",
+    "pretest": "npm -s run build",
+    "test": "node test/test.js"
+  }
+}

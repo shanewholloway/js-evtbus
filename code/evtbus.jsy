@@ -1,0 +1,69 @@
+Object.assign @ evtbus, evtbus()
+export default function evtbus() ::
+  const _byTopic = new Map()
+  const _bySink = new WeakMap()
+
+  return @{} topic, sink
+
+  function topic(topic_) ::
+    return @{}
+      emit(name, evt) ::
+        const tip = byTopic(topic_), l1 = tip[name], l2 = tip['*']
+        if undefined !== l1 ::
+          for const fn of l1 ::
+            fn(evt)
+        if undefined !== l2 ::
+          for const fn of l2 ::
+            fn(evt, name)
+
+      clear(expunge) ::
+        const tip = _byTopic.get(topic_)
+        if undefined === tip :: return
+        if expunge :: _byTopic.delete(topic_)
+        for const [name, lst] of Object.entries(tip) ::
+          delete tip[name]
+          for const ea of lst ::
+            ea.fn = ea.lst = null
+
+
+  function byTopic(topic_, name) ::
+    if null == topic_ ::
+      throw new TypeError('Invalid topic')
+
+    let tip = _byTopic.get(topic_)
+    if undefined === tip ::
+      tip = Object.create(null)
+      _byTopic.set(topic_, tip)
+    if undefined === name ::
+      return tip
+    return tip[name] || @ tip[name] = []
+
+
+  function sink(sink_) ::
+    sink.subscribe = sink
+    sink.clear = clear
+    return sink
+
+    function clear() ::
+      const funcs = _bySink.get(sink_)
+      if undefined !== funcs ::
+        _bySink.delete(sink_)
+        for const {lst, fn} of funcs ::
+          // from https://github.com/developit/mitt/blob/e911aacbec17f3aea33d465637a11ff6738f50b2/src/index.js#L44
+          if lst :: lst.splice @ lst.indexOf(fn) >>> 0, 1
+        funcs.clear()
+
+    function sink(topic, name, fn) ::
+      if 'function' !== typeof fn ::
+        throw new TypeError @ 'Expected function'
+
+      let funcs = _bySink.get(sink_)
+      if undefined === funcs ::
+        funcs = new Set()
+        _bySink.set(sink_, funcs)
+
+      const lst = byTopic(topic, name)
+      funcs.add @: fn, lst
+      lst.push @ fn
+      return sink
+
