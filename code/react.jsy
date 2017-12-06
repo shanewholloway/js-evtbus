@@ -1,31 +1,20 @@
-//import {Component, PureComponent} from 'react'
-//return withSubscribe @ evtbus, @{} Component, PureComponent
-
 export function withSubscribe(evtbus, Component) ::
-  if 'function' !== typeof Component ::
-    if Array.isArray @ Component ::
-      return Component.map @ Comp =>
-        withSubscribe @ evtbus, Comp
-    else ::
-      const res = {}
-      for const [name, Comp] of Object.entries @ Component ::
-        if 'function' === typeof Comp ::
-          res[name] = withSubscribe @ evtbus, Comp
-      return res
-
   const C = class extends Component ::
-    subscribe(props) ::
+    state = this.state || {}
+
+    subscriptions(props) ::
+    setSubscriptionState(sub_state, cleanup) ::
+      if undefined !== cleanup ::
+        Object.assign @ this.state, sub_state
+        this.evt_sink.on @ 'cleanup', cleanup
+      else ::
+        this.setState(sub_state)
 
     componentWillMount() ::
-      super.componentWillMount()
-      bindSubscriptions @ this
-      this.evt_sink.emit('will_mount')
+      bindSubscriptions(this)
 
-    componentDidMount() ::
-      this.evt_sink.emit('did_mount')
-
-    componentWillUnmount() ::
-      this.evt_sink.emit('will_unmount').clear()
+    componentWillUnmount(...args) ::
+      this.evt_sink.emit('cleanup').clear()
 
     get evt_sink() :: return evtbus.sink(this)
 
@@ -33,30 +22,34 @@ export function withSubscribe(evtbus, Component) ::
   return C
 
 
-export function bindSubscriptions(component, callback) ::
-  if null == component.state ::
-    component.state = {}
+export function bindSubscriptions(component) ::
+  const subscriptions = 'function' === typeof component.subscriptions
+    ? component.subscriptions(component.props)
+    : component.subscriptions
 
-  const unwind = []
-  component.evt_sink
-    .on @ 'will_mount', mount
-    .on @ 'will_unmount', unmount
+  if null == subscriptions :: return
 
-  function unmount() ::
+  const sub_state={}, unwind=[]
+  let q = null
+
+  for const [attr, sub] of Object.entries @ subscriptions ::
+    if null == sub || 'function' !== typeof sub.subscribe ::
+      throw new TypeError @ `Subscription "${attr}" does not have a subscribe() function`
+
+    unwind.push @
+      sub.subscribe @ v => ::
+        sub_state[attr] = v
+        if null === q ::
+          q = resolveNext()
+
+  component.setSubscriptionState @ sub_state, unsubscribeAll
+
+  function unsubscribeAll() ::
     for const unsub of unwind.splice @ 0, unwind.length ::
       unsub()
 
-  function mount() ::
-    const sub_state = callback
-      ? callback.call(component, component.props, component)
-      : component.subscribe(component.props)
-
-    component.setState @ sub_state, function() ::
-      for const [attr, sub] of Object.entries @ sub_state ::
-        if null == sub || 'function' !== typeof sub.subscribe ::
-          throw new TypeError @ `Subscription "${attr}" does not have a subscribe() function`
-
-        unwind.push @ sub.subscribe @ false, v => ::
-          component.setState @ prev =>
-            v !== prev[attr] ? {[attr]: v} : null
-
+  // use promise resolution to debounce updates
+  function resolveNext() ::
+    return Promise.resolve().then @ () => ::
+      component.setSubscriptionState @ sub_state
+      q = null
