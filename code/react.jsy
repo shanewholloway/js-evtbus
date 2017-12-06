@@ -1,29 +1,36 @@
 //import {Component, PureComponent} from 'react'
 //return withSubscribe @ evtbus, @{} Component, PureComponent
 
-export function withSubscribe(evtbus, componentClasses) ::
-  const res = {}
-  for const [name, base] of Object.entries @ componentClasses ::
-    res[name] = class extends base ::
+export function withSubscribe(evtbus, Component) ::
+  if 'function' !== typeof Component ::
+    if Array.isArray @ Component ::
+      return Component.map @ Comp =>
+        withSubscribe @ evtbus, Comp
+    else ::
+      const res = {}
+      for const [name, Comp] of Object.entries @ Component ::
+        if 'function' === typeof Comp ::
+          res[name] = withSubscribe @ evtbus, Comp
+      return res
 
-      subscribe(props) ::
+  const C = class extends Component ::
+    subscribe(props) ::
 
-      componentWillMount() ::
-        super.componentWillMount()
-        bindSubscriptions @ this
-        this.evt_sink.emit('will_mount')
+    componentWillMount() ::
+      super.componentWillMount()
+      bindSubscriptions @ this
+      this.evt_sink.emit('will_mount')
 
-      componentDidMount() ::
-        this.evt_sink.emit('did_mount')
+    componentDidMount() ::
+      this.evt_sink.emit('did_mount')
 
-      componentWillUnmount() ::
-        this.evt_sink.emit('will_unmount').clear()
+    componentWillUnmount() ::
+      this.evt_sink.emit('will_unmount').clear()
 
-      get evt_sink() :: return evtbus.sink(this)
+    get evt_sink() :: return evtbus.sink(this)
 
-    res[name].prototype.evtbus = evtbus
-
-  return res
+  C.prototype.evtbus = evtbus
+  return C
 
 
 export function bindSubscriptions(component, callback) ::

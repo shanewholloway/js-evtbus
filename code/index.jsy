@@ -3,5 +3,6 @@ import evtbus from './evtbus.jsy'
 export * from './evtbus.jsy'
 export * from './react.jsy'
 
+export {evtbus}
 export default evtbus
 
