@@ -9,10 +9,10 @@ const eb = require('../dist/evtbus')
 
   let l_ans, g_ans
   eb.sink(g)
-    .subscribe @ 'neato', 'keen', (v, topic) => ::
+    .on_topic @ 'neato', 'keen', (v, topic) => ::
       l_ans = @{} v, topic
 
-    .subscribe @ 'neato', '*', (v, name, topic) => ::
+    .on_topic @ 'neato', '*', (v, name, topic) => ::
       g_ans = @{} v, name, topic
 
   eb.topic('neato').emit @ 'keen', src

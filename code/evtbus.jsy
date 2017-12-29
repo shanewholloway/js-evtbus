@@ -47,7 +47,8 @@ export default function evtbus() ::
 
 
   function sink(sink_) ::
-    return Object.assign @ sink, @{} subscribe:sink, clear, on, emit
+    const self = Object.assign @ on_topic, @{} on_topic, clear, on, emit
+    return self
 
     function clear() ::
       const funcs = _bySink.get(sink_)
@@ -58,18 +59,18 @@ export default function evtbus() ::
           if lst :: lst.splice @ lst.indexOf(fn) >>> 0, 1
         funcs.clear()
         if funcs.ns :: clear_ns(funcs.ns)
-      return sink
+      return self
 
     function emit(name, evt) ::
       const funcs = _bySink.get(sink_)
       if funcs && funcs.ns ::
         topic(sink_).emit(name, evt)
-      return sink
+      return self
 
     function on(name, fn) ::
-      return sink(sink_, name, fn)
+      return on_topic(sink_, name, fn)
 
-    function sink(topic, name, fn) ::
+    function on_topic(topic, name, fn) ::
       if 'function' !== typeof fn ::
         throw new TypeError @ 'Expected function'
 
@@ -82,5 +83,5 @@ export default function evtbus() ::
         const lst = byTopic(topic, name)
         funcs.add @: fn, lst
         lst.push @ fn
-      return sink
+      return self
 
