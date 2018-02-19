@@ -1,3 +1,5 @@
+import subscribeToState from 'react-subscription-view/esm'
+
 export function withSubscribe(evtbus, Component) ::
   const C = class extends Component ::
     state = this.state || {}
@@ -13,7 +15,7 @@ export function withSubscribe(evtbus, Component) ::
     componentWillMount() ::
       bindSubscriptions(this)
 
-    componentWillUnmount(...args) ::
+    componentWillUnmount() ::
       this.evt_sink.emit('cleanup').clear()
 
     get evt_sink() :: return evtbus.sink(this)
@@ -27,29 +29,8 @@ export function bindSubscriptions(component) ::
     ? component.subscriptions(component.props)
     : component.subscriptions
 
-  if null == subscriptions :: return
+  const {current, unsubscribe} = subscribeToState @ subscriptions,
+    current => component.setSubscriptionState(current)
 
-  const sub_state={}, unwind=[]
-  let q = null
+  component.setSubscriptionState(current, unsubscribe)
 
-  for const [attr, sub] of Object.entries @ subscriptions ::
-    if null == sub || 'function' !== typeof sub.subscribe ::
-      throw new TypeError @ `Subscription "${attr}" does not have a subscribe() function`
-
-    unwind.push @
-      sub.subscribe @ v => ::
-        sub_state[attr] = v
-        if null === q ::
-          q = resolveNext()
-
-  component.setSubscriptionState @ sub_state, unsubscribeAll
-
-  function unsubscribeAll() ::
-    for const unsub of unwind.splice @ 0, unwind.length ::
-      unsub()
-
-  // use promise resolution to debounce updates
-  function resolveNext() ::
-    return Promise.resolve().then @ () => ::
-      component.setSubscriptionState @ sub_state
-      q = null
