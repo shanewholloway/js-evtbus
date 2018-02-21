@@ -14,8 +14,10 @@ const prod_plugins = plugins.concat([rpi_uglify(ugly, minify)])
 export default [
 	{ input: 'code/index.jsy',
 		output: [
+      { file: pkg.module, format: 'es', sourcemap },
       { file: pkg.main, format: 'cjs', sourcemap, exports:'named' },
-      { file: pkg.module, format: 'es', sourcemap }],
+      { file: 'umd/evtbus-all.js', format: 'umd', sourcemap, name: 'evtbus-all', exports:'named' },
+    ],
     external, plugins },
 
 	{ input: 'code/evtbus.jsy',
@@ -30,7 +32,7 @@ export default [
 		output: [
       { file: 'cjs/react.js', format: 'cjs', sourcemap },
       { file: 'esm/react.js', format: 'es', sourcemap },
-      { file: 'umd/react.js', format: 'umd', sourcemap, name: 'evtbus' },
+      { file: 'umd/react.js', format: 'umd', sourcemap, name: 'evtbus-react' },
     ],
     external, plugins },
 
@@ -47,7 +49,13 @@ export default [
 
   prod_plugins &&
     { input: 'code/react.jsy',
-      output: { file: 'umd/react.min.js', format: 'umd', name: 'evtbus' },
+      output: { file: 'umd/react.min.js', format: 'umd', name: 'evtbus-react' },
       external, plugins: prod_plugins },
+
+
+
+  { input: 'test/browser/test.jsy',
+    output: { file: `test/browser/test.umd.js`, format: 'iife' },
+    external, plugins },
 
 ].filter(e=>e)

@@ -2,7 +2,7 @@ require('source-map-support').install()
 const assert = require('assert')
 
 //const eb = require('evtbus')
-const eb = require('../dist/evtbus')
+const eb = require('../cjs/evtbus')
 
 ::
   const g = {}, src = {y:1942}

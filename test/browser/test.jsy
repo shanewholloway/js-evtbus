@@ -1,0 +1,41 @@
+'use strict';
+const React = window.React
+const h = React.createElement
+const h_fragment = h.bind(React, React.Fragment, {})
+
+const eb_react = window['evtbus-all']
+const EvtBusSubscription = eb_react.withSubscribe@
+  eb_react.evtbus, React.PureComponent
+
+import createExample from './obj_fn_instances.jsy'
+//import createExample from './obj_fn_proto.jsy'
+
+
+class App extends EvtBusSubscription ::
+  subscriptions = @{}
+    a: this.props.a
+    b: this.props.b
+    c: this.props.c
+
+  render() ::
+    const {a,b,c} = this.state
+    return h_fragment @
+      h @ 'ul', null,
+        h @ 'li', {}, a.format()
+        h @ 'li', {}, b.format()
+        h @ 'li', {}, c.format()
+
+::
+  const obs_a = createExample @: name: 'a'
+  const obs_b = createExample @: name: 'b'
+  const obs_c = createExample @: name: 'c', counter:100000
+
+  obs_a.autoinc(1, 1000)
+  obs_b.autoinc(10, 1300)
+  obs_c.autoinc(100, 1700)
+
+
+  ReactDOM.render @
+    h @ App, @{} a: obs_a, b: obs_b, c: obs_c
+    window.main
+

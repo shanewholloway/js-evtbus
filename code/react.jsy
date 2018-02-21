@@ -1,4 +1,5 @@
-import subscribeToState from 'react-subscription-view/esm'
+export {withSubscribedView} from 'react-subscription-view/esm'
+import {subscribeToState} from 'react-subscription-view/esm'
 
 export function withSubscribe(evtbus, Component) ::
   const C = class extends Component ::
@@ -29,8 +30,10 @@ export function bindSubscriptions(component) ::
     ? component.subscriptions(component.props)
     : component.subscriptions
 
-  const {current, unsubscribe} = subscribeToState @ subscriptions,
-    current => component.setSubscriptionState(current)
+  const sub = subscribeToState @ subscriptions,
+  sub.setCurrent = current =>
+    component.setSubscriptionState(current)
 
-  component.setSubscriptionState(current, unsubscribe)
+  component.setSubscriptionState @
+    sub.initial, sub.unsubscribe
 

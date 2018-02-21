@@ -1,0 +1,26 @@
+const obj_fn = window['object-functional']
+
+const ts0 = Date.now()
+const Example = @{}
+  counter: 0, ts: 0,
+
+  autoinc(d, ms) ::
+    ms = Math.max(1000, ms)
+    setInterval @ () => this.inc(d), ms
+    return this.assign @: interval: ms
+
+  format() ::
+    return `Counter "${this.name}": ${this.counter} at ${this.ts} every ${this.interval/1000.}s`
+
+  asAction: @{}
+    assign(ns) :: return Object.assign @ this, ns
+
+    inc(d=1) ::
+      this.counter += d
+      this.ts = (Date.now() - ts0) | 0
+
+export default function createExample(attrs) ::
+  return obj_fn.asFunctionalObject @
+    Object.assign @
+      Object.create(Example)
+      attrs
