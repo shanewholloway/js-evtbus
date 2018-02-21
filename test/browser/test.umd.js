@@ -24,7 +24,7 @@ class Example extends obj_fn.ObjectFunctional {
   }
 
   format() {
-    return `Counter "${this.name}": ${this.counter} at ${this.ts} every ${this.interval / 1000.}s`;
+    return `Instance Counter "${this.name}": ${this.counter} at ${this.ts} every ${this.interval / 1000.}s`;
   }
   assign(ns) {
     if (null != ns) {
@@ -38,9 +38,35 @@ class Example extends obj_fn.ObjectFunctional {
   }
 }
 
-function createExample(attrs) {
-  return new Example().init().assign(attrs || {});
+function createInstaceExample() {
+  return new Example().init();
 }
+
+const obj_fn$1 = window['object-functional'];
+
+const ts0$1 = Date.now();
+const createProtoExample = obj_fn$1.asFunctionalProto({
+  counter: 0, ts: 0,
+
+  autoinc(d, ms) {
+    ms = Math.max(1000, ms);
+    setInterval(() => this.inc(d), ms);
+    return this.assign({ interval: ms });
+  },
+
+  format() {
+    return `Proto Counter "${this.name}": ${this.counter} at ${this.ts} every ${this.interval / 1000.}s`;
+  },
+
+  asAction: {
+    assign(ns) {
+      return Object.assign(this, ns);
+    },
+
+    inc(d = 1) {
+      this.counter += d;
+      this.ts = Date.now() - ts0$1 | 0;
+    } } });
 
 const React = window.React;
 const h = React.createElement;
@@ -48,8 +74,6 @@ const h_fragment = h.bind(React, React.Fragment, {});
 
 const eb_react = window['evtbus-all'];
 const EvtBusSubscription = eb_react.withSubscribe(eb_react.evtbus, React.PureComponent);
-//import createExample from './obj_fn_proto.jsy'
-
 
 class App extends EvtBusSubscription {
   constructor(...args) {
@@ -68,9 +92,9 @@ class App extends EvtBusSubscription {
 }
 
 {
-  const obs_a = createExample({ name: 'a' });
-  const obs_b = createExample({ name: 'b' });
-  const obs_c = createExample({ name: 'c', counter: 100000 });
+  const obs_a = createProtoExample().assign({ name: 'a' });
+  const obs_b = createInstaceExample().assign({ name: 'b' });
+  const obs_c = createProtoExample().assign({ name: 'c', counter: 100000 });
 
   obs_a.autoinc(1, 1000);
   obs_b.autoinc(10, 1300);

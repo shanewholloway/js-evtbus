@@ -14,7 +14,7 @@ class Example extends obj_fn.ObjectFunctional ::
     return this.assign @: interval: ms
 
   format() ::
-    return `Counter "${this.name}": ${this.counter} at ${this.ts} every ${this.interval/1000.}s`
+    return `Instance Counter "${this.name}": ${this.counter} at ${this.ts} every ${this.interval/1000.}s`
 
   asAction = this.assign
   assign(ns) ::
@@ -27,6 +27,5 @@ class Example extends obj_fn.ObjectFunctional ::
     this.ts = (Date.now() - ts0) | 0
 
 
-export default function createExample(attrs) ::
-  return new Example().init().assign(attrs||{})
-
+export default function createInstaceExample() ::
+  return new Example().init()

@@ -7,8 +7,8 @@ const eb_react = window['evtbus-all']
 const EvtBusSubscription = eb_react.withSubscribe@
   eb_react.evtbus, React.PureComponent
 
-import createExample from './obj_fn_instances.jsy'
-//import createExample from './obj_fn_proto.jsy'
+import createInstaceExample from './obj_fn_instances.jsy'
+import createProtoExample from './obj_fn_proto.jsy'
 
 
 class App extends EvtBusSubscription ::
@@ -26,9 +26,9 @@ class App extends EvtBusSubscription ::
         h @ 'li', {}, c.format()
 
 ::
-  const obs_a = createExample @: name: 'a'
-  const obs_b = createExample @: name: 'b'
-  const obs_c = createExample @: name: 'c', counter:100000
+  const obs_a = createProtoExample().assign @: name: 'a'
+  const obs_b = createInstaceExample().assign @: name: 'b'
+  const obs_c = createProtoExample().assign @: name: 'c', counter:100000
 
   obs_a.autoinc(1, 1000)
   obs_b.autoinc(10, 1300)

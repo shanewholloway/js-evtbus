@@ -1,7 +1,7 @@
 const obj_fn = window['object-functional']
 
 const ts0 = Date.now()
-const Example = @{}
+const createProtoExample = obj_fn.asFunctionalProto @:
   counter: 0, ts: 0,
 
   autoinc(d, ms) ::
@@ -10,7 +10,7 @@ const Example = @{}
     return this.assign @: interval: ms
 
   format() ::
-    return `Counter "${this.name}": ${this.counter} at ${this.ts} every ${this.interval/1000.}s`
+    return `Proto Counter "${this.name}": ${this.counter} at ${this.ts} every ${this.interval/1000.}s`
 
   asAction: @{}
     assign(ns) :: return Object.assign @ this, ns
@@ -19,8 +19,4 @@ const Example = @{}
       this.counter += d
       this.ts = (Date.now() - ts0) | 0
 
-export default function createExample(attrs) ::
-  return obj_fn.asFunctionalObject @
-    Object.assign @
-      Object.create(Example)
-      attrs
+export default createProtoExample
