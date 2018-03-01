@@ -1,6 +1,6 @@
 {
   "name": "evtbus",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Combination of an in-process 'event bus' and a streamlined event emitter",
   "license": "BSD-2-Clause",
   "author": "Shane Holloway <shane.holloway@ieee.org>",
@@ -24,12 +24,12 @@
     "umd/"
   ],
   "main": "cjs/index.js",
-  "module": "esm/index.mjs",
+  "module": "esm/index.js",
   "browser": "umd/evtbus-all.min.js",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-jsy": "^0.9.3",
-    "react-subscription-view": "^0.1.0",
+    "react-subscription-view": "^0.1.1",
     "rollup": "^0.56.2",
     "rollup-plugin-jsy-babel": "^1.0.1",
     "rollup-plugin-node-resolve": "^3.0.3",
