@@ -30,7 +30,7 @@ export function bindSubscriptions(component) ::
     ? component.subscriptions(component.props)
     : component.subscriptions
 
-  const sub = subscribeToState @ subscriptions,
+  const sub = subscribeToState @ subscriptions || []
   sub.setCurrent = current =>
     component.setSubscriptionState(current)
 
